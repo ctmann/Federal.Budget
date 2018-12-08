@@ -24,14 +24,14 @@
 #' DB-3: Receipts
 #' 
 
+# Libraries ---------------------------------------------------------------
+
 library(tidyverse)
 library(readxl)
 library(janitor)
 library(friendlyeval)
 library(curl)
 library(feather)
-
-
 
 # How to Update this File -------------------------------------------------
 
@@ -60,7 +60,7 @@ file.type.10.1 <- if_else(to.year>2018, ".xlsx", ".xls")
 # Download
 tbl.10.1_gdp.deflator <- sprintf("https://www.gpo.gov/fdsys/pkg/BUDGET-%s-TAB/xls/BUDGET-%s-TAB-11-1%s", to.year,to.year,file.type.10.1)
 url <- tbl.10.1_gdp.deflator
-destfile <- paste0("BUDGET", file.type.10.1)
+destfile <- paste0("tbl.10.1_gdp.deflator", file.type.10.1)
 curl_download(url, destfile)
 
 gdp.deflator <- read_excel(destfile, 
@@ -150,10 +150,9 @@ omb.budauth.5 <- left_join(omb.budauth.4, gdp.deflator)
 current.deflator.name.amount <- paste0("amount.deflated.gdp.", to.year) 
 
 omb.budauth.6 <- omb.budauth.5 %>% 
-  mutate(amount.deflated.gdp.2009 = amount * deflator.index.gdp.2009,
-         !!treat_input_as_col(current.deflator.name.amount) :=  amount * !!treat_input_as_col(current.delator.name.index)) 
+  mutate(amount.deflated.gdp.2009 = amount / deflator.index.gdp.2009,
+         !!treat_input_as_col(current.deflator.name.amount) :=  amount / !!treat_input_as_col(current.delator.name.index)) 
                                                                           # 'deflator name based on current FY
-
 # Export ------------------------------------------------------------------
 
 # Final reordering
@@ -185,23 +184,23 @@ omb.budauth.7 <- omb.budauth.6 %>%
       hyperlink,
       everything()) #<Just in case future fields are added                
 
-library(rpivotTable)
+# Export
+
+my.export.function <- function(df, name.of.file){
+ my.data.folder.location <- paste0(getwd(), "/Data/Processed/")
+ my.timestamp <- paste('Updated', format(Sys.time(), format = ".%Y-%m-%d.%H%M") , sep = "")
+ my.file.name <-  sprintf("%s/%s_%s.csv", my.data.folder.location, name.of.file, my.timestamp)
+ write_csv(df, my.file.name)
+ }
+ 
+# Most Recent Year, otherwise, file too large for github)
+name.of.file <- paste0("omb.budauth.", to.year)
 omb.budauth.7 %>% 
-  filter(base.year %in% 2019) %>% 
-  rpivotTable()
-
-# Tedious, but necessary
-# my.data.folder.location <- paste0(getwd(), "/Compilation/Data/Processed")
-#  my.data.folder.location <- paste0(getwd(), "/Compilation/Data/Processed/")
-#  my.table.name <- paste0("omb.budauth.", from.year, ".to.", to.year)
-#  my.timestamp <- paste('Updated', format(Sys.time(), format = ".%Y-%m-%d.%H%M") , sep = "")
-#  my.file.name <-  sprintf("%s/%s_%s.csv", my.data.folder.location, my.table.name, my.timestamp)
-# 
-#  write_csv(omb.budauth.7, my.file.name)
-# 
-# my.file.name <-  sprintf("%s/%s_%s.feather", my.data.folder.location, my.table.name, my.timestamp)
-# write_feather(omb.budauth.7, my.file.name)
-
+  filter(base.year %in% to.year) %>% 
+  my.export.function(name.of.file)
+ 
+# When writing entire file, use this name:
+#my.table.name <- paste0("omb.budauth.", from.year, ".to.", to.year)
 
 
 
