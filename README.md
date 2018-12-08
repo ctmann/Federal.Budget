@@ -14,19 +14,24 @@ GPO uses this format for creating source hyperlinks:
 * DB-2: Outlays
 * DB-3: Receipts
 
-Public databases (described below) are inconsistent before FY2008: 
+OMB public databases prior to FY2008 contain the following inconsistencies (and are not included in this repository):
 
-Inconsistent Archive Medium
+*Inconsistent Archive Medium*
 * FY1998-FY2001 are stored as text or '.htm'
 * FY2002 is stred as text or xls
 * FY2003 and later are stored as .csv or xls
  
-Inconsistent Data
+*Inconsistent Data*
 * FY2003-FY2007 Have no column headers
 * Span of years may be different for each type
 
 ## Repository File Structure 
-Code folder contains R scripts (currently, only a single cleaning file). Data folder contains raw and processed (exported) data. Shared folder is for common files.
+*Code* folder contains R scripts (currently, only a single cleaning file). 
+*Data* folder contains raw (*Data/Raw*)and processed (*Data/Processed*) data. 
+*Shared* folder is for common files.
+
+## What Does this repository Currently Contain?
+Cleaning script creates a table of nested dataframes which are tidied and enriched. Currently, only FY2008-FY2019 budget authority is available. Due to GitHub space constraints, only the most recent year (FY2019) data is exported as .csv file to the Data/Processed subfolder. 
 
 ## How was the Original Data Altered?
 The R script in this repository alters the original data:
