@@ -1,20 +1,57 @@
 # Federal Budget
-For current fiscal year. raw data is cleaned and tidied from original [White House Supplemental Materials (Public Budget Database)](https://www.whitehouse.gov/omb/supplemental-materials/) using code saved in the "Code" folder, then exported as a completed .csv file to the "Data" folder. 
 
-Previous versions of the Public Database are occasionally useful (for FYDP projections) and is archived online at [GPO - White House Historical Tables page.](https://www.gpo.gov/fdsys/browse/collection.action?collectionCode=BUDGET&browsePath=Fiscal+Year+2019&isCollapsed=true&leafLevelBrowse=false&isDocumentResults=true&ycord=86) 
+## Purpose
+Download and compile all versions of the OMB 'Public Database' from the GPO website:
+https://www.gpo.gov/fdsys/browse/collectionGPO.action?collectionCode=BUDGET
+ 
+## Source Notes 
+The Governnment Publishing Office (GPO) keeps an archive of Presidential Budget Requests. The 'Public Database' (xls, .csv files) are available beginning in FY1998.
 
-## Summary of Included Docs
-1. [2019 White House Federal Budget (FY19 PBR)](https://www.whitehouse.gov/omb/supplemental-materials/)
-2. [GPO Archives](https://www.gpo.gov/fdsys/browse/collection.action?collectionCode=BUDGET&browsePath=Fiscal+Year+2019&isCollapsed=true&leafLevelBrowse=false&isDocumentResults=true&ycord=86):Prior to Fy2008, the files become inconsistent
+GPO uses this format for creating source hyperlinks:
+ https://www.gpo.gov/fdsys/pkg/BUDGET-2003-DB/csv/BUDGET-2003-DB-1.csv
+ 
+* DB-1: Budget Authority
+* DB-2: Outlays
+* DB-3: Receipts
 
+Public databases (described below) are inconsistent before FY2008: 
 
-## Description of Included Docs
-1. The White House has posted three .csv files that can be used to reproduce many of the tables in the administration's budget books and provides data at a finer grain than is otherwise available. The three files are:
+Inconsistent Archive Medium
+* FY1998-FY2001 are stored as text or '.htm'
+* FY2002 is stred as text or xls
+* FY2003 and later are stored as .csv or xls
+ 
+Inconsistent Data
+* FY2003-FY2007 Have no column headers
+* Span of years may be different for each type
 
-* budget authorizations (budauth)
+## Repository File Structure 
+Code folder contains R scripts (currently, only a single cleaning file). Data folder contains raw and processed (exported) data. Shared folder is for common files.
+
+## How was the Original Data Altered?
+The R script in this repository alters the original data:
+* amounts adjusted from thousands
+* GDP.chained deflator index included for each record (for example, deflator.index.gdp.2009, deflator.index.gdp.2019 ). Index based on OMB table 10.1
+* inflation adjusted amounts (for example, amount.deflated.gdp.2009; amount.deflated.gdp.2019)
+* budget functions (and titles)
+* convenience columns (FYDP.yes.or.no, national.defense.yes.or.no)
+* base.year variable indicates the public database release version. The most recent release (currently base.year FY2019) is saved as .csv file. 
+
+## To Do
+1. Add outlays (currently only Budget authority available) 
+ 
+## Narrative Description of Original Docs
+Each year, OMB publishes raw historical data that supplements the release of the Administration's budget request. These "White House Historical Tables" are considered authoritative sources for analyzing long term budget data and are released as .xlx files for the convenience of analysts. They frequently contain important footnotes and various changes changes from year to year; consequently, they are not machine readable.
+
+OMB also publishes a machine-readable (.csv) version of the main datasets each year along with a helpful [user guide](https://www.whitehouse.gov/wp-content/uploads/2018/02/db_guide-fy2019.pdf). There are three types of files:
+
+* budget authorizations 
 * outlays
+* receipts
 
-OMB's [user guide](https://www.whitehouse.gov/wp-content/uploads/2018/02/db_guide-fy2019.pdf) includes necessary data definitions and many helpful references to supplemental budget materials. Note that Budget estimates for the current year (2019) and the budget year (2019) are prepared by agencies, based on the definitions and guidance contained in the OMB Circular A-11...
+Archived versions of each release can be found at [GPO - White House Historical Tables page.](https://www.gpo.gov/fdsys/browse/collection.action?collectionCode=BUDGET&browsePath=Fiscal+Year+2019&isCollapsed=true&leafLevelBrowse=false&isDocumentResults=true&ycord=86). Because each administration may change the layout of it's website, GPO should be considered the preferred source.
 
-## Structure
-Folders are separated into "Data" and "Scripts." 
+Note that Budget estimates for the current year (2019) and the budget year (2019) are prepared by agencies, based on the definitions and guidance contained in the OMB Circular A-11.
+
+
+
