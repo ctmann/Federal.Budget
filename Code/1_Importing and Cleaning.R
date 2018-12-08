@@ -137,10 +137,9 @@ omb.budauth.1 <- omb %>% filter(budget.type %in% "budget.authority")
   # Add meta-identifiers
   omb.budauth.4 <- omb.budauth.4 %>% 
       #> FYDP
-    mutate(FYDP.yes.or.no = if_else(FY >= base.year, "yes", "no"),
+    mutate(FYDP.yes.or.no = ifelse(FY >= base.year, "yes", "no"),
       #>  Defense (based on Function 050)
-           national.defense.yes.or.no = if_else(function_code %in% "050", "yes", "no") )
-  
+           national.defense.yes.or.no = ifelse(function_code %in% "050", "yes", "no") )
 
 #=#= Deflators #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 omb.budauth.5 <- left_join(omb.budauth.4, gdp.deflator)
@@ -185,6 +184,11 @@ omb.budauth.7 <- omb.budauth.6 %>%
       amount.deflated.gdp.2019,  
       hyperlink,
       everything()) #<Just in case future fields are added                
+
+library(rpivotTable)
+omb.budauth.7 %>% 
+  filter(base.year %in% 2019) %>% 
+  rpivotTable()
 
 # Tedious, but necessary
 # my.data.folder.location <- paste0(getwd(), "/Compilation/Data/Processed")
