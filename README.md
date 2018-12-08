@@ -26,21 +26,21 @@ OMB public databases prior to FY2008 contain the following inconsistencies (and 
 * Span of years may be different for each type
 
 ## Repository File Structure 
-*Code* folder contains R scripts (currently, only a single cleaning file). 
-*Data* folder contains raw (*Data/Raw*)and processed (*Data/Processed*) data. 
-*Shared* folder is for common files.
+* **Code** folder contains R scripts (currently, only a single cleaning file). 
+* **Data** folder contains raw (*Data/Raw*)and processed (*Data/Processed*) data. 
+* **Shared** folder is for common files.
 
-## What Does this repository Currently Contain?
+## What Does this Repository Contain?
 Cleaning script creates a table of nested dataframes which are tidied and enriched. Currently, only FY2008-FY2019 budget authority is available. Due to GitHub space constraints, only the most recent year (FY2019) data is exported as .csv file to the Data/Processed subfolder. 
 
 ## How was the Original Data Altered?
 The R script in this repository alters the original data:
 * amounts adjusted from thousands
-* GDP.chained deflator index included for each record (for example, deflator.index.gdp.2009, deflator.index.gdp.2019 ). Index based on OMB table 10.1
+* GDP.chained deflator index included for each record (for example, *deflator.index.gdp.2009*, *deflator.index.gdp.2019*). Index based on OMB "Table 10.1—Gross Domestic Product and Deflators Used in the Historical Tables: 1940–2023" (currently)
 * inflation adjusted amounts (for example, amount.deflated.gdp.2009; amount.deflated.gdp.2019)
 * budget functions (and titles)
 * convenience columns (FYDP.yes.or.no, national.defense.yes.or.no)
-* base.year variable indicates the public database release version. The most recent release (currently base.year FY2019) is saved as .csv file. 
+* base.year variable indicates the public database release version. The most recent release (currently *base.year FY2019*) is saved as .csv file. 
 
 ## To Do
 1. Add outlays (currently only Budget authority available) 
