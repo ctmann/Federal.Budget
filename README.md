@@ -3,6 +3,14 @@
 ## Purpose
 Download and compile all versions of the OMB 'Public Database' from the GPO website:
 https://www.gpo.gov/fdsys/browse/collectionGPO.action?collectionCode=BUDGET
+
+## How to Update this data (for new years)
+1. Choose 'to.year': All OMB public databases FY2008-to.year will be downloaded and stored in nested df
+
+2. Choose only one budget type:  budget.authority / outlays will be processed and exported as .csv
+
+Caution: Sync Github account after each selection, otherwise the .csv upload will exceed limits and the repository will break.
+
  
 ## Source Notes 
 The Governnment Publishing Office (GPO) keeps an archive of Presidential Budget Requests. The 'Public Database' (xls, .csv files) are available beginning in FY1998.
@@ -41,10 +49,20 @@ The R script in this repository alters the original data:
 * inflation adjusted amounts (for example, amount.deflated.gdp.2009; amount.deflated.gdp.2019)
 * budget functions (and titles)
 * convenience columns (FYDP.yes.or.no, national.defense.yes.or.no)
-* base.year variable indicates the public database release version. The most recent release (currently *base.year FY2019*) is saved as .csv file. 
+* base.year variable indicates the public database release version. The most recent release (currently *base.year FY2019*) is saved as .csv file.
+# Quarter Year **TQ** removed from all datasets (1976- TQ- 1977) and deflators
+
+## Q&A
+*Question:* Do I need to download deflators separately?
+    **- No. Hyperlinks to table 10.1 (OMB Deflators) are created automatically** automatically.
+
+*Question:* Can I choose a different deflator?
+    **Not at this time. Base year (default = to.year) can easily be altered in code.**
+
 
 ## To Do
-1. Add outlays (currently only Budget authority available) 
+1. Add receipts
+2. Add GDP
  
 ## Narrative Description of Original Docs
 Each year, OMB publishes raw historical data that supplements the release of the Administration's budget request. These "White House Historical Tables" are considered authoritative sources for analyzing long term budget data and are released as .xlx files for the convenience of analysts. They frequently contain important footnotes and various changes changes from year to year; consequently, they are not machine readable.
