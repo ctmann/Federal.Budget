@@ -24,6 +24,7 @@ OMB public databases prior to FY2008 contain the following inconsistencies (and 
 *Inconsistent Data*
 * FY2003-FY2007 Have no column headers
 * Span of years may be different for each type
+* Outlays begin in FY1962; Budget authority begins in 1976
 
 ## Repository File Structure 
 * **Code** folder contains R scripts (currently, only a single cleaning file). 

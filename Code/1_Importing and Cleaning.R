@@ -1,28 +1,7 @@
+
 # SourceNotes -------------------------------------------------------------
-#' Download and compile all versions of the OMB 'Public Database' from the GPO website:
-#' https://www.gpo.gov/fdsys/browse/collectionGPO.action?collectionCode=BUDGET
-#' 
-#' #' Source Notes 
-#' The Governnment Publishing Office (GPO) keeps an archive of Presidential
-#' Budget Requests. The 'Public Database' (xls, .csv files) are available beginning
-#' in FY1998.
-#' 
-#' Inconsistent Archive Medium
-#' FY1998-FY2001 are stored as text or '.htm'
-#' FY2002 is stred as text or xls
-#' FY2003 and later are stored as .csv or xls
-#' 
-#' Inconsistent Data
-#' -FY2003-FY2007 Have no column headers
-#' -Span of years may be different for each type
-#' 
-#' GPO uses this format:
-#' https://www.gpo.gov/fdsys/pkg/BUDGET-2003-DB/csv/BUDGET-2003-DB-1.csv
-#' 
-#' DB-1: Budget Authority
-#' DB-2: Outlays
-#' DB-3: Receipts
-#' 
+  # Detailed notes available at GitHub site
+  # https://github.com/ctmann/Federal.Budget
 
 # Libraries ---------------------------------------------------------------
 
@@ -34,11 +13,18 @@ library(curl)
 library(feather)
 
 # How to Update this File -------------------------------------------------
+  # 1. Choose 'to.year': All OMB public databases FY2008-to.year will be downloaded and stored in nested df
+  # 2. Choose only one budget type:  budget.authority / outlays will be processed and exported as .csv
+  # 3. Caution: Sync Github account after each selection, otherwise the .csv upload will exceed limits
 
-  to.year   <- 2019 # Update to current year. 
+  to.year   <- 2019                              # Update to current year. 
+  process.this.budget.type <- "budget.authority" # Choose one
+  #process.this.budget.type <- "outlays"         # Choose one
   
-  # (Creates filenames, colnames, and adjusts for most current deflator.)
- 
+  #Question: Do I need to download deflators separately?
+  #  - No. Hyperlinks to table 10.1 (OMB Deflators) are created automatically.
+  #Question: Can I choose a different deflator?
+  #  - Not at this time. Base year (default = to.year) can easily be altered in code.
 
 # Common Vars -------------------------------------------------------------
   #Select OMB datasets to download (consistent data begins in 2008)
@@ -71,7 +57,8 @@ gdp.deflator <- read_excel(destfile,
         "skip"), skip = 2) %>% 
   rename(FY = 1, deflator.index.gdp.2009 = 2) %>% 
   filter(!(is.na(FY)|                           #eliminate NAs in FY col
-           is.na(deflator.index.gdp.2009))) %>% #eliminate NAs in deflator col
+           is.na(deflator.index.gdp.2009)|      #eliminate NAs in deflator col
+           FY %in% "TQ")) %>%                   #eliminate TQ        
   mutate(FY = str_remove(FY, "[^0-9].+" ) %>% parse_integer )     #remove 'estimate' from FY col
 
 # Create Current Year Index (based on 'to.year')
@@ -84,8 +71,7 @@ current.delator.name.index <- paste0("deflator.index.gdp.", to.year )
 gdp.deflator <- gdp.deflator %>% 
   mutate( !!treat_input_as_col(current.delator.name.index) :=  deflator.index.gdp.2009/current.year.index) 
 
-# Import Main Datasets------------------------------------------------------------------
-
+# Import All OMB Data  ------------------------------------------------------------------
 
 ##=#=#=#=#=#= Download all public databases from GPO during (from-to span) #=#=#=#=#=#=
    # - Each 'database' identified by its original FY.base
@@ -100,26 +86,24 @@ gdp.deflator <- gdp.deflator %>%
     hyperlink = c(sprintf("https://www.gpo.gov/fdsys/pkg/BUDGET-%s-DB/csv/BUDGET-%s-DB-1.csv", c(from.year:to.year),c(from.year:to.year)),
              sprintf("https://www.gpo.gov/fdsys/pkg/BUDGET-%s-DB/csv/BUDGET-%s-DB-2.csv", c(from.year:to.year), c(from.year:to.year))) )
   
-#=#=#=#=#=#= Download Budget Authority #=#=#=#=#=#=#=#=#=#=#=#=
-#' budauth datasets are shaped differently than outlays
-
-omb.budauth.1 <- omb %>% filter(budget.type %in% "budget.authority")
-
-  # Download budauths
-  omb.budauth.2 <-  omb.budauth.1 %>% 
+  # Download outlays and budauths as nested tibbles
+  omb1 <-  omb %>% 
     mutate(bob = map(.x = hyperlink, 
                      ~(.x %>% 
                          read_csv(col_types = (cols(.default="c"))) %>% 
                          clean_names() ) ) )
-  
-  omb.budauth.3 <- omb.budauth.2 %>% unnest() %>% 
-    select(-x1976, -tq, -x1977) %>%    # unneeded years
+
+# Process by budget.type (budauth or outlays) -------------------------------
+
+omb2 <- omb1 %>% filter(budget.type %in% process.this.budget.type)
+
+  omb3 <- omb2 %>% unnest() %>% 
+    select(-tq) %>%    # unneeded years
     # Tidy
     gather(FY, amount, -base.year:-on_or_off_budget)  %>% 
     mutate(amount = parse_number(amount)*1e3 , #<Adjust for thousands of dollars
            FY = str_remove(FY, "x"), 
            subfunction_code = str_pad(subfunction_code, width=3,  side="left", pad="0") )  %>% 
-    filter(!FY %in% c("tq", "1976", "1977"))  %>% #<Remove tq, 1976, 1977)
     mutate(FY = parse_integer(FY)) %>% 
     mutate(amount = replace_na(amount, 0) ) #<Remove damnable NAs not parsed
   
@@ -132,31 +116,31 @@ omb.budauth.1 <- omb %>% filter(budget.type %in% "budget.authority")
                                       col_types = (cols(.default="c") )) %>% clean_names() %>% 
     mutate_at(vars(contains("code")), str_pad, width=3, side="left", pad="0")   
   
-  omb.budauth.4 <- left_join(omb.budauth.3, budget.functions)
+  omb4 <- left_join(omb3, budget.functions)
   
   # Add meta-identifiers
-  omb.budauth.4 <- omb.budauth.4 %>% 
+  omb4 <- omb4 %>% 
       #> FYDP
     mutate(FYDP.yes.or.no = ifelse(FY >= base.year, "yes", "no"),
       #>  Defense (based on Function 050)
            national.defense.yes.or.no = ifelse(function_code %in% "050", "yes", "no") )
 
 #=#= Deflators #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
-omb.budauth.5 <- left_join(omb.budauth.4, gdp.deflator)
+omb5 <- left_join(omb4, gdp.deflator)
 
 # current deflator index is called 'current.deflator.name.index'
 # current delated amount will be called 'current.deflator.name.amount'
 # names vary according to year selected ('to.year')
 current.deflator.name.amount <- paste0("amount.deflated.gdp.", to.year) 
 
-omb.budauth.6 <- omb.budauth.5 %>% 
+omb6 <- omb5 %>% 
   mutate(amount.deflated.gdp.2009 = amount / deflator.index.gdp.2009,
          !!treat_input_as_col(current.deflator.name.amount) :=  amount / !!treat_input_as_col(current.delator.name.index)) 
                                                                           # 'deflator name based on current FY
 # Export ------------------------------------------------------------------
 
 # Final reordering
-omb.budauth.7 <- omb.budauth.6 %>% 
+omb7 <- omb6 %>% 
   select(
       budget.type,               
       base.year,                 
@@ -194,13 +178,13 @@ my.export.function <- function(df, name.of.file){
  }
  
 # Most Recent Year, otherwise, file too large for github)
-name.of.file <- paste0("omb.budauth.", to.year)
-omb.budauth.7 %>% 
+name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
+omb7 %>% 
   filter(base.year %in% to.year) %>% 
   my.export.function(name.of.file)
  
 # When writing entire file, use this name:
-#my.table.name <- paste0("omb.budauth.", from.year, ".to.", to.year)
+#my.table.name <- paste0("omb", from.year, ".to.", to.year)
 
 
 
