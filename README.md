@@ -4,12 +4,14 @@
 Download and compile all versions of the OMB 'Public Database' from the GPO website:
 https://www.gpo.gov/fdsys/browse/collectionGPO.action?collectionCode=BUDGET
 
-## How to Update this data (for new years)
+## What does the code do?
+The main cleaning script dowloads all GPO data FY2008-current year. Only a single type may be selected at one time (either budget authority or outlays). Only the most recent version will be exported as .csv (due to size limits), however all are available in the final R dataframe prior to export.
+
+## How To Use the Code
 1. Choose 'to.year': All OMB public databases FY2008-to.year will be downloaded and stored in nested df
+2. Choose only one budget type:  budget.authority / outlays. The result will be processed and exported as .csv (filtered by most recent year).
 
-2. Choose only one budget type:  budget.authority / outlays will be processed and exported as .csv
-
-Caution: Sync Github account after each selection, otherwise the .csv upload will exceed limits and the repository will break.
+*Caution: If using Github, sync after each selection to avoid exceeding upload limits and breaking the repository.*
 
  
 ## Source Notes 
