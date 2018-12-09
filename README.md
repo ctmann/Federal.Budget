@@ -47,19 +47,19 @@ Cleaning script creates a table of nested dataframes which are tidied and enrich
 ## How was the Original Data Altered?
 The R script in this repository alters the original data:
 * Recalculated amounts from thousands
-* Added GDP.chained deflator index for each record (for example, **deflator.index.gdp.2009**, **deflator.index.gdp.2019**). Index based on OMB "Table 10.1—Gross Domestic Product and Deflators Used in the Historical Tables: 1940–2023." 
-* Added column of inflation adjusted amounts (for example, **amount.deflated.gdp.2019**)
+* Added GDP.chained deflator index for each record (for example, *deflator.index.gdp.2009*, *deflator.index.gdp.2019*). Index based on OMB "Table 10.1—Gross Domestic Product and Deflators Used in the Historical Tables: 1940–2023." 
+* Added column of inflation adjusted amounts (for example, *amount.deflated.gdp.2019*)
 * Added budget functions (and titles)
 * Added convenience columns (FYDP.yes.or.no, national.defense.yes.or.no)
-* Added **base.year** variable denoting public database version. 
-# Removed **TQ** from all datasets (1976- TQ- 1977) and deflators. This is not the best solution, but I'm not sure how else to handle it. Use caution for years during this span.
+* Added *base.year* variable denoting public database version. 
+* Removed quarter year *TQ* from all datasets (1976- TQ- 1977) and deflators. This is not the best solution, but I'm not sure how else to handle it. Use caution for years during this span.
 
 ## Q&A
 *Question:* Do I need to download deflators separately?
-    **- No. Hyperlinks to table 10.1 (OMB Deflators) are created automatically based on to.year.** 
+    *- No. Hyperlinks to table 10.1 (OMB Deflators) are created automatically based on to.year.*
 
 *Question:* Can I choose a different deflator?
-    **Not at this time. Base year (default = to.year) can easily be altered in code.**
+    *Not at this time. Base year (default = to.year) can easily be altered in code.*
 
 
 ## To Do
