@@ -19,11 +19,21 @@ library(feather)
   to.year   <- 2019                              # Update to current year. 
   process.this.budget.type <- "budget.authority" # Choose one
   #process.this.budget.type <- "outlays"         # Choose one
-
+  
+  # Answer: Is the deflator baseline still FY2009?
+  
 # Common Vars -------------------------------------------------------------
   #Select OMB datasets to download (consistent data begins in 2008)
   from.year <- 2008 # Don't change this! Consistent OMB data begins in 2008
   span.years <- (to.year - from.year)+1
+  
+  # Export Function
+  my.export.function <- function(df, name.of.file){
+    my.data.folder.location <- paste0(getwd(), "/Data/Processed/")
+    my.timestamp <- paste('Updated', format(Sys.time(), format = ".%Y-%m-%d.%H%M") , sep = "")
+    my.file.name <-  sprintf("%s/%s_%s.csv", my.data.folder.location, name.of.file, my.timestamp)
+    write_csv(df, my.file.name)
+  }
   
 # Deflator & GDP ----------------------------------------------------------------
 #' Table 10.1 - Gross Domestic Product and Deflators Used in the Historical Tables: 1940–...
@@ -32,37 +42,69 @@ library(feather)
 #'   Inconsistent archive medium
 #'   - FY2019 .xlsx, prior years .xls
 #'   
-#=#=#=#=#= Download File from GPO #=#=#=#=#=#=
+#'   Base Year Changes
+#'   - table's base year (in which index = 1.00) varies
+#'         * FY2008 to FY2010 : FY2000 base year
+#'         * FY2011 - FY2014  : FY2005 base year
+#'         * FY2015 onwards   : FY2009 base year
   
 #- Adjust filetype, by year
 file.type.10.1 <- if_else(to.year>2018, ".xlsx", ".xls")
-  
-# Download
-tbl.10.1_gdp.deflator <- sprintf("https://www.gpo.gov/fdsys/pkg/BUDGET-%s-TAB/xls/BUDGET-%s-TAB-11-1%s", to.year,to.year,file.type.10.1)
-url <- tbl.10.1_gdp.deflator
-destfile <- paste0("tbl.10.1_gdp.deflator", file.type.10.1)
-curl_download(url, destfile)
 
-#=#=#=#= Deflators #=#=#=#=#=#=
-gdp.deflator <- read_excel(destfile, 
-    col_types = c("text", "skip", "numeric", 
-        "skip", "skip", "skip", "skip", 
-        "skip", "skip", "skip", "skip", 
-        "skip", "skip", "skip", "skip", 
-        "skip"), skip = 2) %>% 
-  rename(FY = 1, deflator.index.gdp.2009 = 2) %>% 
-  filter(!(is.na(FY)|                           #eliminate NAs in FY col
-           is.na(deflator.index.gdp.2009)|      #eliminate NAs in deflator col
-           FY %in% "TQ")) %>%                   #eliminate TQ        
-  mutate(FY = str_remove(FY, "[^0-9].+" ) %>% parse_integer )     #remove 'estimate' from FY col
+# Create download tibble
+tbl.10.1_gdp.deflator <- tibble(
+  table.base.year = rep( c(from.year:to.year), 1) ,
+  hyperlink = sprintf("https://www.gpo.gov/fdsys/pkg/BUDGET-%s-TAB/xls/BUDGET-%s-TAB-11-1%s", to.year,to.year,file.type.10.1) ) %>% 
+  mutate(  file.name = paste0("./Data/Raw/", table.base.year, "_", "tbl.10.1",file.type.10.1))
+
+# Download all 10.1 files to raw folder
+#   (downloading with read_excel is not currently possible)
+Map(function(u, d)download.file(u, d, mode="wb"), tbl.10.1_gdp.deflator$hyperlink, tbl.10.1_gdp.deflator$file.name)
+
+# Read in excel files, unnest
+tbl.10.1_gdp.deflator.compiled <- tbl.10.1_gdp.deflator %>% 
+  mutate(my.data = map(file.name, ~(.x %>% read_excel(col_types = c("text", "skip", "numeric", 
+                                                                    "skip", "skip", "skip", "skip", 
+                                                                    "skip", "skip", "skip", "skip", 
+                                                                    "skip", "skip", "skip", "skip", 
+                                                                    "skip"), skip = 2) %>% 
+                                      rename(FY = 1, index = 2) %>% 
+                                      filter(!(is.na(FY)|                             #eliminate NAs in FY col
+                                                 is.na(index)|      #eliminate NAs in deflator col
+                                                 FY %in% "TQ")) %>%                   #eliminate TQ        
+                                      mutate(FY = str_remove(FY, "[^0-9].+" ) %>% parse_integer) )  ) ) %>% 
+  select(-file.name, -hyperlink) %>% unnest() %>%  
+  mutate(index.base.year = case_when(
+    # BASE YEAR!! 
+     between(table.base.year, 2008, 2010) ~ 2000,
+     between(table.base.year, 2011, 2014) ~ 2005,
+     table.base.year >= 2015 ~ 2009)) #<Base year is FY2009 for all tables after FY2015
+
+# --Compilation complete--
+# Export compilation separately (see export section)#
+# Proceed to isolate most recent table and adjust
 
 # Create Current Year Index (based on 'to.year')
+most.recent.index.base.year <- tbl.10.1_gdp.deflator.compiled %>% 
+  distinct(index.base.year) %>% 
+  top_n(1) %>% 
+  pull()
+most.recent.index.base.year <- paste0("deflator.index.gdp.", most.recent.index.base.year)
+
+#Filter compilation for most recent table, rename index (baseline FY2009)
+gdp.deflator <- tbl.10.1_gdp.deflator.compiled %>% 
+  filter(table.base.year %in% to.year) %>% #< filter by most recent year
+  select(-index.base.year, -table.base.year) %>% 
+  #rename
+  rename(!!treat_input_as_col(most.recent.index.base.year) :=  index )
+
+# Add current year index
 current.year.index <- gdp.deflator %>% 
   filter(FY %in% to.year) %>%  
   select(deflator.index.gdp.2009) %>% pull()
 
 current.delator.name.index <- paste0("deflator.index.gdp.", to.year ) 
-
+#rename
 gdp.deflator <- gdp.deflator %>% 
   mutate( !!treat_input_as_col(current.delator.name.index) :=  deflator.index.gdp.2009/current.year.index) 
 
@@ -184,7 +226,11 @@ omb7 %>%
 # Secondary Data: GDP -----------------------------------------------------
 # Purpose: Extract GDP from downloaded table 10.1
 
-gdp <- read_excel(destfile, 
+# 2019_tbl.10.1.xlsx
+
+my.gdp.file <- paste0("./Data/Raw/", to.year, "_tbl.10.1.xlsx")
+
+gdp <- read_excel(my.gdp.file, 
     col_types = c("text", "numeric", "skip", 
         "skip", "skip", "skip", "skip", 
         "skip", "skip", "skip", "skip", 
@@ -217,3 +263,15 @@ my.export.function(df=gdp2, name.of.file = name.of.file)
                      
                      
                      
+
+
+# thrid Dataset: Historical Deflators -------------------------------------
+
+  # Most Recent Year, otherwise, file too large for github)
+  name.of.file <- paste0("omb.tbl.10.1.historical.deflators_FY2008.to.", to.year)
+  
+  #Export
+  my.export.function(tbl.10.1_gdp.deflator.compiled, name.of.file) 
+  
+
+
