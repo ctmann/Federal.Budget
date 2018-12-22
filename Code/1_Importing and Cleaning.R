@@ -213,7 +213,7 @@ my.export.function <- function(df, name.of.file){
  write_csv(df, my.file.name)
  }
  
-# Most Recent Year, otherwise, file too large for github)
+# Filter by Most Recent Year, otherwise, file too large for github)
 name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
 omb7 %>% 
   filter(base.year %in% to.year) %>% 
