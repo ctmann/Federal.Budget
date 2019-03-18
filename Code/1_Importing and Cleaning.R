@@ -16,7 +16,7 @@ library(feather)
   # 2. Choose only one budget type:  budget.authority / outlays will be processed and exported as .csv
   # 3. Caution: Sync Github account after each selection, otherwise the .csv upload will exceed limits
 
-  to.year   <- 2019                              # Update to current year. 
+  to.year   <- 2020                              # Update to current year. 
   process.this.budget.type <- "budget.authority" # Choose one
   #process.this.budget.type <- "outlays"         # Choose one
   
@@ -200,8 +200,8 @@ omb7 <- omb6 %>%
       amount,                    
       deflator.index.gdp.2009,   
       amount.deflated.gdp.2009,  
-      deflator.index.gdp.2019,   
-      amount.deflated.gdp.2019,  
+      deflator.index.gdp.2020,   
+      amount.deflated.gdp.2020,  
       hyperlink,
       everything()) #<Just in case future fields are added                
 
