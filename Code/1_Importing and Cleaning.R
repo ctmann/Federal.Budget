@@ -174,104 +174,110 @@ omb6 <- omb5 %>%
   mutate(amount.deflated.gdp.2009 = amount / deflator.index.gdp.2009,
          !!treat_input_as_col(current.deflator.name.amount) :=  amount / !!treat_input_as_col(current.delator.name.index)) 
                                                                           # 'deflator name based on current FY
-# Export ------------------------------------------------------------------
 
-# Final reordering
-omb7 <- omb6 %>% 
-  select(
-      budget.type,               
-      base.year,                 
-      function_code,             
-      function_title,        
-      subfunction_code,          
-      subfunction_title,         
-      agency_code,               
-      agency_name,               
-      bureau_code,               
-      bureau_name,               
-      account_code,              
-      account_name,              
-      treasury_agency_code,      
-      bea_category,              
-      on_or_off_budget,      
-      FYDP.yes.or.no,            
-      national.defense.yes.or.no,          
-      FY,                        
-      amount,                    
-      deflator.index.gdp.2009,   
-      amount.deflated.gdp.2009,  
-      deflator.index.gdp.2020,   
-      amount.deflated.gdp.2020,  
-      hyperlink,
-      everything()) #<Just in case future fields are added                
+# Exports -----------------------------------------------------------------
+# 3 Exports: Main, GDP, and Historical Deflators. Each saved as separate .csv file.
 
-# Export
-my.export.function <- function(df, name.of.file){
- my.data.folder.location <- paste0(getwd(), "/Data/Processed/")
- my.timestamp <- paste('Updated', format(Sys.time(), format = ".%Y-%m-%d.%H%M") , sep = "")
- my.file.name <-  sprintf("%s/%s_%s.csv", my.data.folder.location, name.of.file, my.timestamp)
- write_csv(df, my.file.name)
- }
- 
-# Filter by Most Recent Year, otherwise, file too large for github)
-name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
-omb7 %>% 
-  filter(base.year %in% to.year) %>% 
-  my.export.function(name.of.file)
- 
-# When writing entire file, use this name:
-#my.table.name <- paste0("omb", from.year, ".to.", to.year)
-
-
-# Secondary Data: GDP -----------------------------------------------------
-# Purpose: Extract GDP from downloaded table 10.1
-
-# 2019_tbl.10.1.xlsx
-
-my.gdp.file <- paste0("./Data/Raw/", to.year, "_tbl.10.1.xlsx")
-
-gdp <- read_excel(my.gdp.file, 
-    col_types = c("text", "numeric", "skip", 
-        "skip", "skip", "skip", "skip", 
-        "skip", "skip", "skip", "skip", 
-        "skip", "skip", "skip", "skip", 
-        "skip"), skip = 2) %>% 
-  rename(FY = 1, amount.gdp = 2) %>% 
-  filter(!(is.na(FY)|                                       #eliminate NAs in FY col
-           is.na(amount.gdp)|                                      #eliminate NAs in deflator col
-           FY %in% "TQ")) %>%                               #eliminate TQ year       
-  mutate(FY = str_remove(FY, "[^0-9].+" ) %>% parse_integer , #remove 'estimate' from FY col
-         amount.gdp = amount.gdp *1e9)     
-
-gdp1 <- left_join(gdp, gdp.deflator)
-
-# current deflator index is called 'current.deflator.name.index'
-# current delated amount will be called 'current.deflator.name.amount'
-# names vary according to year selected ('to.year')
-current.deflator.name.amount <- paste0("amount.gdp.deflated.gdp.", to.year) 
-
-gdp2 <- gdp1 %>% 
-  mutate(amount.gdp.deflated.gdp.2009 = amount.gdp / deflator.index.gdp.2009,
-         !!treat_input_as_col(current.deflator.name.amount) :=  amount.gdp / !!treat_input_as_col(current.delator.name.index)) 
- 
-name.of.file <- paste0("GDP.as.of.FY", to.year)
-my.export.function(df=gdp2, name.of.file = name.of.file)
-                     
-                     
-                     
-                     
-                     
-                     
-                     
-
-
-# thrid Dataset: Historical Deflators -------------------------------------
-
-  # Most Recent Year, otherwise, file too large for github)
-  name.of.file <- paste0("omb.tbl.10.1.historical.deflators_FY2008.to.", to.year)
-  
-  #Export
-  my.export.function(tbl.10.1_gdp.deflator.compiled, name.of.file) 
+  # 1. Main Data ------------------------------------------------------------------
   
 
-
+  # Final reordering
+  omb7 <- omb6 %>% 
+    select(
+        budget.type,               
+        base.year,                 
+        function_code,             
+        function_title,        
+        subfunction_code,          
+        subfunction_title,         
+        agency_code,               
+        agency_name,               
+        bureau_code,               
+        bureau_name,               
+        account_code,              
+        account_name,              
+        treasury_agency_code,      
+        bea_category,              
+        on_or_off_budget,      
+        FYDP.yes.or.no,            
+        national.defense.yes.or.no,          
+        FY,                        
+        amount,                    
+        21,                          # deflator.index.gdp.2009,   # This may change with base year
+        23,                          # amount.deflated.gdp.2009,  # This may change with base year
+        22,                          # deflator.index.gdp.2020,   # Change this to FriendlyEval
+        24,                          # amount.deflated.gdp.2020,  # Change this to friendlyeval
+        hyperlink,
+        everything()) #<Just in case future fields are added                
+  
+  # Export
+  my.export.function <- function(df, name.of.file){
+   my.data.folder.location <- paste0(getwd(), "/Data/Processed/")
+   my.timestamp <- paste('Updated', format(Sys.time(), format = ".%Y-%m-%d.%H%M") , sep = "")
+   my.file.name <-  sprintf("%s/%s_%s.csv", my.data.folder.location, name.of.file, my.timestamp)
+   write_csv(df, my.file.name)
+   }
+   
+  # Filter by Most Recent Year, otherwise, file too large for github)
+  name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
+  omb7 %>% 
+    filter(base.year %in% to.year) %>% 
+    my.export.function(name.of.file)
+   
+  # When writing entire file, use this name:
+  #my.table.name <- paste0("omb", from.year, ".to.", to.year)
+  
+  
+  # 2. Secondary Data: GDP -----------------------------------------------------
+  # Purpose: Extract GDP from downloaded table 10.1
+  
+  # 2019_tbl.10.1.xlsx
+  
+  my.gdp.file <- paste0("./Data/Raw/", to.year, "_tbl.10.1.xlsx")
+  
+  gdp <- read_excel(my.gdp.file, 
+      col_types = c("text", "numeric", "skip", 
+          "skip", "skip", "skip", "skip", 
+          "skip", "skip", "skip", "skip", 
+          "skip", "skip", "skip", "skip", 
+          "skip"), skip = 2) %>% 
+    rename(FY = 1, amount.gdp = 2) %>% 
+    filter(!(is.na(FY)|                                       #eliminate NAs in FY col
+             is.na(amount.gdp)|                                      #eliminate NAs in deflator col
+             FY %in% "TQ")) %>%                               #eliminate TQ year       
+    mutate(FY = str_remove(FY, "[^0-9].+" ) %>% parse_integer , #remove 'estimate' from FY col
+           amount.gdp = amount.gdp *1e9)     
+  
+  gdp1 <- left_join(gdp, gdp.deflator)
+  
+  # current deflator index is called 'current.deflator.name.index'
+  # current delated amount will be called 'current.deflator.name.amount'
+  # names vary according to year selected ('to.year')
+  current.deflator.name.amount <- paste0("amount.gdp.deflated.gdp.", to.year) 
+  
+  gdp2 <- gdp1 %>% 
+    mutate(amount.gdp.deflated.gdp.2009 = amount.gdp / deflator.index.gdp.2009,
+           !!treat_input_as_col(current.deflator.name.amount) :=  amount.gdp / !!treat_input_as_col(current.delator.name.index)) 
+   
+  name.of.file <- paste0("GDP.as.of.FY", to.year)
+  my.export.function(df=gdp2, name.of.file = name.of.file)
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+  
+  
+  # 3. Dataset: Historical Deflators -------------------------------------
+  
+    # Most Recent Year, otherwise, file too large for github)
+    name.of.file <- paste0("omb.tbl.10.1.historical.deflators_FY2008.to.", to.year)
+    
+    #Export
+    my.export.function(tbl.10.1_gdp.deflator.compiled, name.of.file) 
+    
+  
+  
+  
