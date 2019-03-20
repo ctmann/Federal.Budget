@@ -16,8 +16,8 @@ library(feather)
       to.year   <- 2020                              # Update to current year. 
   
   # 2. Choose budget type:  budget.authority / outlays will be processed and exported as .csv
-  #process.this.budget.type <- "budget.authority" 
-      process.this.budget.type <- "outlays"          
+  process.this.budget.type <- "budget.authority" 
+      #process.this.budget.type <- "outlays"          
   
   # 3. Adjust deflator base year, if necessary
   
