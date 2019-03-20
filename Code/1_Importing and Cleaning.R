@@ -259,15 +259,15 @@ omb6 <- omb5 %>%
   
   gdp1 <- left_join(gdp, gdp.deflator)
   
-  # current deflator index is called 'current.deflator.name.index'
-  # current delated amount will be called 'current.deflator.name.amount'
-  # names vary according to year selected ('to.year')
-  current.deflator.name.amount <- paste0("amount.gdp.deflated.gdp.", to.year) 
+
+base.year.deflator.name.amount 
+current.deflator.name.amount
   
   gdp2 <- gdp1 %>% 
-    mutate(amount.gdp.deflated.gdp.2009 = amount.gdp / deflator.index.gdp.2009,
-           !!treat_input_as_col(current.deflator.name.amount) :=  amount.gdp / !!treat_input_as_col(current.delator.name.index)) 
-   
+    mutate(!!treat_input_as_col(base.year.deflator.name.amount) := amount.gdp / !!treat_input_as_col(most.recent.index.base.year),
+           !!treat_input_as_col(current.deflator.name.amount)   := amount.gdp / !!treat_input_as_col(current.delator.name.index))                                                                       # 'deflator name based on current FY
+
+  
   name.of.file <- paste0("GDP.as.of.FY", to.year)
   my.export.function(df=gdp2, name.of.file = name.of.file)
   
@@ -282,3 +282,19 @@ omb6 <- omb5 %>%
   
   
   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
