@@ -267,16 +267,13 @@ omb6 <- omb5 %>%
   #my.table.name <- paste0("omb", from.year, ".to.", to.year)
 
 
-# FYDP Defense Data -------------------------------------------------------
+  # 2. FYDP Defense Data -------------------------------------------------------
  omb7 %>% 
     filter(national.defense.yes.or.no %in% "yes",
            FYDP.yes.or.no %in% "yes") %>% 
-    my.export.function(paste0("./Data/Processed/national.defense.fydp.compilation.as.of.FY", to.year, ".csv") )
-  
-
+    my.export.function(paste0("fydp.compilation.as.of.FY", to.year) )
   # library(rpivotTable)
   # national.defense.fydp %>% rpivotTable()
-  
   
   # 3. Dataset: Historical Deflators -------------------------------------
   
