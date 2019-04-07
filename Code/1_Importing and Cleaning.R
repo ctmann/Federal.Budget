@@ -30,7 +30,7 @@ library(feather)
   
   # 2. Choose budget type
       process.this.budget.type <- "budget.authority" 
-      #process.this.budget.type <- "outlays"          
+      #process.this.budget.type <- "outlays"  #< Outlays export too big for GitHub        
   
   # 3.a Adjust deflator index year for OMB table 10.1
   #      - Currently FY2012; most recently FY2009
@@ -58,15 +58,14 @@ library(feather)
                         "https://www.govinfo.gov/content/pkg/BUDGET-2019-TAB/xls/BUDGET-2019-TAB-11-1.xlsx", 
                         "https://www.govinfo.gov/content/pkg/BUDGET-2020-TAB/xls/BUDGET-2020-TAB-11-1.xlsx") #2020 
                                                                                                              #2021 < Add new link here
-
 # Common Vars -------------------------------------------------------------
   #Select OMB datasets to download (consistent data begins in 2008)
   from.year <- 2008 # Don't change this! Consistent OMB data begins in 2008
   span.years <- (to.year - from.year)+1
   
   # Prep names
-  base.year.deflator.name.amount <- paste0("amount.deflated.gdp.", to.year) 
-  current.deflator.name.amount <-   paste0("amount.deflated.gdp.", deflator.base.year) 
+   current.deflator.name.amount <- paste0("amount.deflated.gdp.", to.year) 
+   base.year.deflator.name.amount<-   paste0("amount.deflated.gdp.", deflator.base.year) #< Currently Fy2012
 
   
   # Export Function
@@ -94,11 +93,13 @@ tbl.10.1_gdp.deflator <- tibble(
 
 # Download all 10.1 files to raw folder
 #   (downloading with read_excel is not currently possible)
+#   reading .xls from web directly is not currently possible
+
 Map(function(u, d)download.file(u, d, mode="wb"), tbl.10.1_gdp.deflator$hyperlink, tbl.10.1_gdp.deflator$file.name)
 
 # Read in excel files, unnest
 tbl.10.1_gdp.deflator.compiled <- tbl.10.1_gdp.deflator %>% 
-  mutate(my.data = map(file.name, ~(.x %>% read_excel(range = cell_cols(c("A","C") ),
+  mutate(my.data = map(file.name, ~(.x %>% read_excel(range = cell_cols(c("A","C") ), # weird merged cols
                                                       col_types="text")  %>% 
                                       rename(FY = 1, amount.gdp = 2, index = 3) %>% 
                                       filter(!(is.na(FY)|                             #eliminate NAs in FY col
@@ -138,8 +139,7 @@ current.delator.name.index <- paste0("deflator.index.gdp.", to.year )
 gdp.deflator <- gdp.deflator %>% 
   mutate( !!treat_input_as_col(current.delator.name.index) := !!treat_input_as_col(most.recent.index.base.year)/current.year.index ) 
 
-
-# Export GDP --------------------------------------------------------------
+#  Exportable GDP --------------------------------------------------------------
 gdp1 <- gdp.deflator
   
   gdp2 <- gdp1 %>% 
@@ -227,7 +227,6 @@ omb6 <- omb5 %>%
         base.year,                 
         function_code,             
         function_title,        
-        
         subfunction_code,          
         subfunction_title,         
         agency_code,               
@@ -266,9 +265,20 @@ omb6 <- omb5 %>%
    
   # When writing entire file, use this name:
   #my.table.name <- paste0("omb", from.year, ".to.", to.year)
+
+
+# FYDP Defense Data -------------------------------------------------------
+ omb7 %>% 
+    filter(national.defense.yes.or.no %in% "yes",
+           FYDP.yes.or.no %in% "yes") %>% 
+    my.export.function(paste0("./Data/Processed/national.defense.fydp.compilation.as.of.FY", to.year, ".csv") )
+  
+
+  # library(rpivotTable)
+  # national.defense.fydp %>% rpivotTable()
   
   
-  # 2. Dataset: Historical Deflators -------------------------------------
+  # 3. Dataset: Historical Deflators -------------------------------------
   
     # Most Recent Year, otherwise, file too large for github)
     name.of.file <- paste0("omb.tbl.10.1.historical.deflators_FY2008.to.", to.year)
