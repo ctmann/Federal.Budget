@@ -210,6 +210,28 @@ omb2 <- omb1 %>% filter(budget.type %in% process.this.budget.type)
     mutate(FYDP.yes.or.no = ifelse(FY >= base.year, "yes", "no"),
       #>  Defense (based on Function 050)
            national.defense.yes.or.no = ifelse(function_code %in% "050", "yes", "no") )
+  
+  # BCA Security and Non-Security
+  # Descr: Original BCA legislation contained "security and non-security" categories
+  #        that were later simplified to defense/non-defense.
+  # See cbo final sequestration report (2012) for defs of original defs
+  # Revised defense/non-defense same as discretionary 050
+  
+  omb4 <- omb4 %>% 
+    mutate(BCA.original.security.category = 
+             ifelse( "Discretionary" %in% bea_category &
+                       ( "007" %in% agency_code|
+                         "024" %in% agency_code|
+                         "029" %in% agency_code|
+                         "National Nuclear Security Administration" %in% bureau_name|
+                         "Intelligence Community Management Account" %in% account_name |
+                         "150" %in% function_code),
+      "BCA.security", "BCA.non.security") ) %>% 
+    mutate(BCA.revised.defense.category = 
+             ifelse( "Discretionary" %in% bea_category &
+                       "050" %in% function_code,
+      "BCA.defense", "BCA.non.defense"))
+
 
 #=#= Deflators #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 omb5 <- left_join(omb4, gdp.deflator )
