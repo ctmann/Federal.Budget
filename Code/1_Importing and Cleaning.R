@@ -244,11 +244,11 @@ omb2 <- omb1 %>% filter(budget.type %in% process.this.budget.type)
                            bureau_name %in% "National Nuclear Security Administration" |
                            account_name %in% "Intelligence Community Management Account"  |
                            function_code %in% "150"),
-        "BCA.security", "BCA.non.security") ) %>% 
+                  "BCA.security", "BCA.non.security") ) %>% 
       mutate(BCA.revised.defense.category = 
                ifelse( bea_category  %in% "Discretionary" &
-                         function_code %in% "050" ,
-        "BCA.defense", "BCA.non.defense")) %>% filter(BCA.original.security.category %in% "BCA.non.security")
+                       function_code %in% "050",
+                  "BCA.defense", "BCA.non.defense")) 
 
 
 #=#= Deflators #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
@@ -310,7 +310,7 @@ omb6 <- omb5 %>%
 
   # 1. Main Data ------------------------------------------------------------------
     # Export (only if export swich is turned on)
-        # export.switch <- "export.switch.on"
+         #export.switch <- "export.switch.on"
 
       name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
       ifelse(export.switch == "export.switch.on",
