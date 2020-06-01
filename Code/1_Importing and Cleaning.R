@@ -234,22 +234,22 @@ omb2 <- omb1 %>% filter(budget.type %in% process.this.budget.type)
     # See cbo final sequestration report (2012) for defs of original defs
     # Revised defense/non-defense same as discretionary 050
   
+
     omb4 <- omb4 %>% 
       mutate(BCA.original.security.category = 
-               ifelse( "Discretionary" %in% bea_category &
-                         ( "007" %in% agency_code|
-                           "024" %in% agency_code|
-                           "029" %in% agency_code|
-                           "National Nuclear Security Administration" %in% bureau_name|
-                           "Intelligence Community Management Account" %in% account_name |
-                           "150" %in% function_code),
+               ifelse("Discretionary" %in% bea_category &
+                         ( agency_code %in% "007"|
+                           agency_code %in% "024"|
+                           agency_code %in% "029" |
+                           bureau_name %in% "National Nuclear Security Administration" |
+                           account_name %in% "Intelligence Community Management Account"  |
+                           function_code %in% "150"),
         "BCA.security", "BCA.non.security") ) %>% 
       mutate(BCA.revised.defense.category = 
-               ifelse( "Discretionary" %in% bea_category &
-                         "050" %in% function_code,
-        "BCA.defense", "BCA.non.defense"))
+               ifelse( bea_category  %in% "Discretionary" &
+                         function_code %in% "050" ,
+        "BCA.defense", "BCA.non.defense")) %>% filter(BCA.original.security.category %in% "BCA.non.security")
 
-  
 
 #=#= Deflators #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 omb5 <- left_join(omb4, gdp.deflator )
