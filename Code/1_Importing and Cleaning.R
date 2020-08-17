@@ -28,12 +28,12 @@ library(feather)
   # Dashboard of Options -------------------------------------------------
 
   #Preliminaries: Downloads, Exports 
-  # a) Do you want to download all new raw data? Use Download switch below. (default "OFF")
-       download.switch <- "download.switch.off" #<-Default: Do not download new raw data when running code
-       #download.switch <- "download.switch.on" #<-Download fresh raw data when running code 
+  # a) Download new raw data? 
+       download.switch <- "download.switch.off" #<-Default: Do NOT download new raw data when running code
+       #download.switch <- "download.switch.on" #<-Download new raw data
   
   # b) Do you want to export files? Use export switch below.
-       export.switch <-   "export.switch.off" #<-Default: Do not download export when running code
+       export.switch <-   "export.switch.off" #<-Default: Do NOT download export when running code
        #export.switch <- "export.switch.on" #<-Download fresh raw data when running code 
   
   #Update Options:
@@ -226,7 +226,8 @@ omb2 <- omb1 %>% filter(budget.type %in% process.this.budget.type)
       #> FYDP
     mutate(FYDP.yes.or.no = ifelse(FY >= base.year, "yes", "no"),
       #>  Defense (based on Function 050)
-           national.defense.yes.or.no = ifelse(function_code %in% "050", "yes", "no") )
+           national.defense.yes.or.no = ifelse(function_code %in% "050", "yes", "no"),
+           PBR.yes.or.no = ifelse(base.year == FY, "yes", "no"))
   
   # BCA Security and Non-Security
     # Descr: Original BCA legislation contained "security and non-security" categories
@@ -281,7 +282,8 @@ omb6 <- omb5 %>%
         treasury_agency_code,      
         bea_category,              
         on_or_off_budget,      
-        FYDP.yes.or.no,            
+        FYDP.yes.or.no,
+        PBR.yes.or.no,
         national.defense.yes.or.no,
         BCA.revised.defense.category,
         BCA.original.security.category,
@@ -305,28 +307,32 @@ omb6 <- omb5 %>%
   #<<<<<End: [omb.final.dataset] contains current year data only >>>>
 
 
+
 # Exports -----------------------------------------------------------------
 # 3 Exports: Main, GDP, and Historical Deflators. Each saved as separate .csv file.
 
   # 1. Main Data ------------------------------------------------------------------
     # Export (only if export swich is turned on)
-         #export.switch <- "export.switch.on"
+         export.switch <- "export.switch.on"
 
       name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
+      my.dataset <- omb.final.dataset
+      
       ifelse(export.switch == "export.switch.on",
-        omb.final.dataset %>% my.export.function(name.of.file),
+        my.dataset %>% my.export.function(name.of.file),
       ("--->Export Switch Off<----") )
 
   # 2. FYDP Defense Data -------------------------------------------------------
     #smaller FYDP dataset
-    # export.switch <- "export.switch.on"
+     #export.switch <- "export.switch.on"
 
- fydp.defense.dataset <- omb.final.dataset %>% 
+ name.of.file <-paste0("fydp.compilation.as.of.FY", to.year)
+ my.dataset <- omb.final.dataset %>% 
     filter(national.defense.yes.or.no %in% "yes",
            FYDP.yes.or.no %in% "yes")
       
     ifelse(test=export.switch == "export.switch.on",
-           yes= my.export.function(fydp.defense.dataset, paste0("fydp.compilation.as.of.FY", to.year)),
+           yes= my.export.function(my.dataset, name.of.file),
            no= "--->Export Switch Off<----"  )
 
   # 3. Historical Deflators -------------------------------------
@@ -352,26 +358,39 @@ omb6 <- omb5 %>%
     
   # 4. Historical GDP -------------------------------------
     name.of.file <- paste0("GDP.as.of.FY", to.year)
+    my.dataset <- gdp2
     
     ifelse(test=export.switch == "export.switch.on",
-           yes = my.export.function(df=gdp2, name.of.file = name.of.file),
+           yes = my.export.function(df=my.dataset, name.of.file = name.of.file),
            no= "--->Export Switch Off<----"  )
 
+  # #5 PBR Historical Defense----------------------------------------------------------------------
+    
+    # PBR.Historical ----------------------------------------------------------
+    PBR.historic.050 <- omb.complete.public.db.collection %>% 
+      filter(national.defense.yes.or.no == "yes",
+             PBR.yes.or.no == "yes")
+    
+    name.of.file <- paste0("PBR.050.as.of.FY", to.year)
+    my.dataset <- PBR.historic.050
+    
+    ifelse(test=export.switch == "export.switch.on",
+           yes = my.export.function(df=my.dataset, name.of.file = name.of.file),
+           no= "--->Export Switch Off<----"  )
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
   
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
   
