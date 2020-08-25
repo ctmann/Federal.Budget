@@ -227,7 +227,7 @@ omb2 <- omb1 %>% filter(budget.type %in% process.this.budget.type)
         group_by(base.year) %>% 
            mutate(enacted.category = case_when(
              base.year == FY     ~ "PBR",
-             FY == (base.year-1) ~ "estimate",
+             FY == (base.year-1) ~ "enacted",
              FY == (base.year-2) ~ "actual",
              FY > base.year     ~ "FYDP")
                   ) %>% 
@@ -317,7 +317,7 @@ omb6 <- omb5 %>%
          #export.switch <- "export.switch.on"
 
       name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
-      my.dataset <- omb.final.dataset #current base year
+      my.dataset <- omb.final.dataset #current base year; filtered for 050 only
       
       ifelse(export.switch == "export.switch.on",
         my.dataset %>% my.export.function(name.of.file),
@@ -325,9 +325,10 @@ omb6 <- omb5 %>%
 
   # 2. FYDP Defense Data -------------------------------------------------------
 
- name.of.file <-paste0("fydp.compilation.as.of.FY", to.year)
+ name.of.file <-paste0("fydp.defense.compilation.as.of.FY", to.year)
+
+ #Filter complete dataset: National Defense; 
       
- #Filter complete dataset: National Defense; FYPD
    my.dataset <- omb.complete.public.db.collection %>% 
       filter(national.defense.yes.or.no %in% "yes",
              FYDP.yes.or.no %in% "yes")
