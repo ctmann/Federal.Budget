@@ -226,12 +226,13 @@ omb2 <- omb1 %>% filter(budget.type %in% process.this.budget.type)
     mutate(national.defense.yes.or.no = ifelse(function_code %in% "050", "yes", "no")) %>% 
         group_by(base.year) %>% 
            mutate(enacted.category = case_when(
-             base.year == FY     ~ "PBR",
-             FY == (base.year-1) ~ "enacted",
-             FY <= (base.year-2) ~ "actual",
-             FY > base.year     ~ "FYDP")
+                     base.year == FY     ~ "PBR",
+                     FY == (base.year-1) ~ "enacted",
+                     FY <= (base.year-2) ~ "actual",
+                     FY > base.year     ~ "FYDP"),
+                  current.year.math = (FY - base.year)
                   ) %>% 
-        ungroup()
+        ungroup() 
   
   # BCA Security and Non-Security
     # Descr: Original BCA legislation contained "security and non-security" categories
@@ -267,7 +268,7 @@ omb6 <- omb5 %>%
 
 #=#= Final Reorder and Filter #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 
-  # Reorder--------
+  # Step 4. Final Reorder, Filter for Size--------
   omb.complete.public.db.collection <- omb6 %>% 
     select(
         budget.type,               
@@ -285,7 +286,7 @@ omb6 <- omb5 %>%
         treasury_agency_code,      
         bea_category,              
         on_or_off_budget,      
-        #FYDP.yes.or.no,
+        current.year.math,
         enacted.category,
         national.defense.yes.or.no,
         BCA.revised.defense.category,
@@ -300,14 +301,11 @@ omb6 <- omb5 %>%
         -hyperlink, -file.name) %>% 
   filter(amount!=0) #Lots of zeros introduced because of unnesting
   
-  # Filter for Two Datasts----
-
-  # Dataset 1: [omb.complete.public.db.collection] too big for GitHub
-
-  # Dataset 2: [omb.final.dataset] Current base.year only
-      omb.final.dataset <- omb.complete.public.db.collection %>% 
-          filter(base.year %in% to.year) 
-
+  # Filter for Two Datasts
+    # Dataset 1: [omb.complete.public.db.collection] too big for GitHub
+    # Dataset 2: [omb.final.dataset] Current base.year only
+        omb.final.dataset <- omb.complete.public.db.collection %>% 
+            filter(base.year %in% to.year) 
 
 # Exports (Includes final filters) -----------------------------------------------------------------
 # 3 Exports: Main, GDP, and Historical Deflators. Each saved as separate .csv file.
@@ -316,20 +314,20 @@ omb6 <- omb5 %>%
     # Export (only if export swich is turned on)
          #export.switch <- "export.switch.on"
 
-      name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
-      my.dataset <- omb.final.dataset #current base year; filtered for 050 only
-      
-      ifelse(export.switch == "export.switch.on",
-        my.dataset %>% my.export.function(name.of.file),
-      ("--->Export Switch Off<----") )
+        name.of.file <- paste0("omb.", process.this.budget.type, ".FY", to.year)
+        my.dataset <- omb.final.dataset #current base year; filtered for 050 only
+        
+        ifelse(export.switch == "export.switch.on",
+          my.dataset %>% my.export.function(name.of.file),
+        ("--->Export Switch Off<----") )
 
   # 2. FYDP Defense 050 Data (includes PBR) -------------------------------------------------------
 
- name.of.file <-paste0("fydp.defense.compilation.as.of.FY", to.year)
-      
-   my.dataset <- omb.complete.public.db.collection %>% 
-      filter(national.defense.yes.or.no %in% "yes",
-             enacted.category %in% c("PBR", "FYDP") )
+         name.of.file <-paste0("fydp.defense.compilation.as.of.FY", to.year)
+            
+         my.dataset <- omb.complete.public.db.collection %>% 
+            filter(national.defense.yes.or.no %in% "yes",
+                   enacted.category %in% c("PBR", "FYDP") )
  
  # Export
    #export.switch <- "export.switch.on"
