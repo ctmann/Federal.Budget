@@ -310,7 +310,7 @@ omb6 <- omb5 %>%
 # Exports (Includes final filters) -----------------------------------------------------------------
 # 3 Exports: Main, GDP, and Historical Deflators. Each saved as separate .csv file.
 
-  # 1. Current year - All Federal Accounts ------------------------------------------------------------------
+  # 1. Current year: All Federal Accounts ------------------------------------------------------------------
     # Export (only if export swich is turned on)
          #export.switch <- "export.switch.on"
 
