@@ -228,7 +228,7 @@ omb2 <- omb1 %>% filter(budget.type %in% process.this.budget.type)
            mutate(enacted.category = case_when(
              base.year == FY     ~ "PBR",
              FY == (base.year-1) ~ "enacted",
-             FY == (base.year-2) ~ "actual",
+             FY <= (base.year-2) ~ "actual",
              FY > base.year     ~ "FYDP")
                   ) %>% 
         ungroup()
@@ -312,7 +312,7 @@ omb6 <- omb5 %>%
 # Exports (Includes final filters) -----------------------------------------------------------------
 # 3 Exports: Main, GDP, and Historical Deflators. Each saved as separate .csv file.
 
-  # 1. Current year OMB Data - Unfiltered ------------------------------------------------------------------
+  # 1. Current year - All Federal Accounts ------------------------------------------------------------------
     # Export (only if export swich is turned on)
          #export.switch <- "export.switch.on"
 
@@ -323,18 +323,16 @@ omb6 <- omb5 %>%
         my.dataset %>% my.export.function(name.of.file),
       ("--->Export Switch Off<----") )
 
-  # 2. FYDP Defense Data -------------------------------------------------------
+  # 2. FYDP Defense 050 Data (includes PBR) -------------------------------------------------------
 
  name.of.file <-paste0("fydp.defense.compilation.as.of.FY", to.year)
-
- #Filter complete dataset: National Defense; 
       
    my.dataset <- omb.complete.public.db.collection %>% 
       filter(national.defense.yes.or.no %in% "yes",
              FYDP.yes.or.no %in% "yes")
  
  # Export
-   #øøøøoexport.switch <- "export.switch.on"
+   #export.switch <- "export.switch.on"
     ifelse(test=export.switch == "export.switch.on",
            yes= my.export.function(my.dataset, name.of.file),
            no= "--->Export Switch Off<----"  )
