@@ -329,7 +329,7 @@ omb6 <- omb5 %>%
       
    my.dataset <- omb.complete.public.db.collection %>% 
       filter(national.defense.yes.or.no %in% "yes",
-             FYDP.yes.or.no %in% "yes")
+             enacted.category %in% c("PBR", "FYDP") )
  
  # Export
    #export.switch <- "export.switch.on"
@@ -368,19 +368,7 @@ omb6 <- omb5 %>%
            yes = my.export.function(df=my.dataset, name.of.file = name.of.file),
            no= "--->Export Switch Off<----"  )
 
-  # #5 PBR Historical Defense----------------------------------------------------------------------
-    
-    # PBR.Historical ----------------------------------------------------------
-    PBR.historic.050 <- omb.complete.public.db.collection %>% 
-      filter(national.defense.yes.or.no == "yes",
-             PBR.yes.or.no == "yes")
-    
-    name.of.file <- paste0("PBR.050.as.of.FY", to.year)
-    my.dataset <- PBR.historic.050
-    
-    ifelse(test=export.switch == "export.switch.on",
-           yes = my.export.function(df=my.dataset, name.of.file = name.of.file),
-           no= "--->Export Switch Off<----"  )
+
 
     
     
