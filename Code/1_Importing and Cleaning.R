@@ -324,16 +324,16 @@ omb6 <- omb5 %>%
   # 2. FYDP Defense 050 Data (includes PBR) -------------------------------------------------------
 
          name.of.file <-paste0("fydp.defense.compilation.as.of.FY", to.year)
-            
-         my.dataset <- omb.complete.public.db.collection %>% 
+
+            my.dataset <- omb.complete.public.db.collection %>% 
             filter(national.defense.yes.or.no %in% "yes",
-                   enacted.category %in% c("PBR", "FYDP") )
- 
- # Export
-   #export.switch <- "export.switch.on"
-    ifelse(test=export.switch == "export.switch.on",
-           yes= my.export.function(my.dataset, name.of.file),
-           no= "--->Export Switch Off<----"  )
+                        current.year.math >= -2 ) #<first actual/enacted/pbr/fydp
+            
+         # Export
+           #export.switch <- "export.switch.on"
+            ifelse(test=export.switch == "export.switch.on",
+                   yes= my.export.function(my.dataset, name.of.file),
+                   no= "--->Export Switch Off<----"  )
 
   # 3. Historical Deflators -------------------------------------
   
