@@ -1,0 +1,23 @@
+CRX.account,Source,bureau_name,public.law.title,notes
+Operation and Maintenance,OMB,Operation and Maintenance,,
+Military Personnel,OMB,Military Personnel,,Retired.pay is always part of MILPERS. OMB data makes no distinction.
+Procurement,OMB,Procurement,,
+RDT&E,OMB,"Research, Development, Test, and Evaluation",,
+Military Construction,OMB,Military Construction,,
+Family Housing,OMB,Family Housing,,
+Revolving and Management Funds,OMB,Revolving and Management Funds,,
+Trust Funds and Other,OMB,Trust Funds,,
+Trust Funds and Other,OMB,Special Foreign Currency Program,,
+Trust Funds and Other,OMB,Department of Defense--Military Programs,,
+Trust Funds and Other,OMB,Allowances,,
+Operation and Maintenance,Green Book,,OM,
+Military Personnel,Green Book,,military.personnel,
+Military Personnel,Green Book,,retired.pay.Defense,"Before FY1985, retired ""retired.pay.Defense"" was separate from MILPERS. Afterwards, it was part of MILPERS. Note Retired Pay is $0 in 1985 and later."
+Procurement,Green Book,,procurement,
+RDT&E,Green Book,,RDTE,
+Military Construction,Green Book,,MILCON,
+Family Housing,Green Book,,family.housing,"Family Housing amounts occassionally differ from OMB totals before 1983.
+ 
+ In those early years, Family housing costs were not allocated to the military depts."
+Revolving and Management Funds,Green Book,,revolving.and.management.funds,
+Trust Funds and Other,Green Book,,trust.receipts.and.other,
