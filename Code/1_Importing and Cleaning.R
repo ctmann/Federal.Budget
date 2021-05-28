@@ -38,7 +38,7 @@ library(feather)
   
   #Update Options:
     # 1. Choose 'to.year'
-        to.year   <- 2021       # Update to current year. 
+        to.year   <- 2022       # Update to current year. 
     
     # 2. Choose budget type (Outlays export too big for GitHub)
         process.this.budget.type <- "budget.authority" 
