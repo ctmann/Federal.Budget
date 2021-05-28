@@ -69,6 +69,7 @@ library(feather)
                           "https://www.govinfo.gov/content/pkg/BUDGET-2018-TAB/xls/BUDGET-2018-TAB-11-1.xls",
                           "https://www.govinfo.gov/content/pkg/BUDGET-2019-TAB/xls/BUDGET-2019-TAB-11-1.xlsx", 
                           "https://www.govinfo.gov/content/pkg/BUDGET-2020-TAB/xls/BUDGET-2020-TAB-11-1.xlsx",
+                          "https://www.govinfo.gov/content/pkg/BUDGET-2021-TAB/xls/BUDGET-2021-TAB-11-1.xlsx",
                           "https://www.govinfo.gov/content/pkg/BUDGET-2021-TAB/xls/BUDGET-2021-TAB-11-1.xlsx") #2021 
                                                                                                                #2022 < Add new link here
   # Common Vars -------------------------------------------------------------
