@@ -41,8 +41,8 @@ library(feather)
         to.year   <- 2022       # Update to current year. 
     
     # 2. Choose budget type (Outlays export too big for GitHub)
-        process.this.budget.type <- "budget.authority" 
-        #process.this.budget.type <- "outlays"  
+        #process.this.budget.type <- "budget.authority" 
+        process.this.budget.type <- "outlays"  
         
     # 3.a Adjust deflator index base year for OMB table 10.1
     #      - Currently FY2012; most recently FY2009
@@ -70,8 +70,8 @@ library(feather)
                           "https://www.govinfo.gov/content/pkg/BUDGET-2019-TAB/xls/BUDGET-2019-TAB-11-1.xlsx", 
                           "https://www.govinfo.gov/content/pkg/BUDGET-2020-TAB/xls/BUDGET-2020-TAB-11-1.xlsx",
                           "https://www.govinfo.gov/content/pkg/BUDGET-2021-TAB/xls/BUDGET-2021-TAB-11-1.xlsx",
-                          "https://www.govinfo.gov/content/pkg/BUDGET-2021-TAB/xls/BUDGET-2021-TAB-11-1.xlsx") #2021 
-                                                                                                               #2022 < Add new link here
+                          "https://www.govinfo.gov/content/pkg/BUDGET-2022-TAB/xls/BUDGET-2022-TAB-11-1.xlsx") #2022 
+                                                                                                               #2023 < Add new link here
   # Common Vars -------------------------------------------------------------
     #Select OMB datasets to download (consistent data begins in 2008)
     from.year <- 2008 # Don't change this! Consistent OMB data begins in 2008
